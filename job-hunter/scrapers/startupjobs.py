@@ -9,8 +9,9 @@ from config import LOCATION
 BASE_URL = "https://www.startupjobs.cz"
 
 SEARCH_URLS = [
-    f"{BASE_URL}/nabidky?superObor=marketing&misto=Praha",
-    f"{BASE_URL}/nabidky?superObor=marketing",  # záloha bez filtru města
+    f"{BASE_URL}/nabidky/marketingovy-specialista,online-marketing-specialista,seo-specialista?lokalita=Praha:50.08584:14.422954:20km",
+    f"{BASE_URL}/nabidky/brand-manager,ppc-specialista,performance-marketing-specialista?lokalita=Praha:50.08584:14.422954:20km",
+    f"{BASE_URL}/nabidky?superObor=marketing&misto=Praha",  # záloha
 ]
 
 

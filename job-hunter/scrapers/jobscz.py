@@ -17,11 +17,12 @@ JOBS_CZ_QUERIES = [
 
 # --- Indeed.cz (záloha) ---
 
-INDEED_QUERIES = [
-    "marketing", "brand+manager", "performance+marketing",
-    "PPC+specialista", "SEM+specialista", "growth+marketing",
+INDEED_URLS = [
+    "https://cz.indeed.com/jobs?q=marketing&l=Praha%2C+Hlavn%C3%AD+m%C4%9Bsto+Praha",
+    "https://cz.indeed.com/jobs?q=brand+manager&l=Praha%2C+Hlavn%C3%AD+m%C4%9Bsto+Praha",
+    "https://cz.indeed.com/jobs?q=performance+marketing&l=Praha%2C+Hlavn%C3%AD+m%C4%9Bsto+Praha",
+    "https://cz.indeed.com/jobs?q=PPC+specialista&l=Praha%2C+Hlavn%C3%AD+m%C4%9Bsto+Praha",
 ]
-INDEED_BASE = "https://cz.indeed.com/rss?l=Praha&radius=25&sort=date&q="
 
 
 class JobsCzScraper:
@@ -88,29 +89,44 @@ def _scrape_jobscz(seen: set) -> list[JobOffer]:
 
 
 def _scrape_indeed(seen: set) -> list[JobOffer]:
+    from bs4 import BeautifulSoup
     offers = []
-    for query in INDEED_QUERIES:
+    for url in INDEED_URLS:
         try:
-            resp = requests.get(INDEED_BASE + query, headers=HEADERS, timeout=15)
+            resp = requests.get(url, headers=HEADERS, timeout=15)
             resp.raise_for_status()
-            feed = feedparser.parse(resp.content)
         except Exception as e:
-            print(f"  Indeed.cz ({query}) chyba: {e}")
+            print(f"  Indeed.cz chyba: {e}")
             continue
 
-        for entry in feed.entries:
-            url = entry.get("link", "").split("?")[0]
-            if url in seen:
+        soup = BeautifulSoup(resp.text, "lxml")
+        cards = (
+            soup.select("div.job_seen_beacon")
+            or soup.select("div.jobsearch-ResultsList > li")
+            or soup.select("div[data-jk]")
+            or soup.select("td.resultContent")
+        )
+        for card in cards:
+            title_el = card.select_one("h2.jobTitle a, h2 a, a[data-jk]")
+            company_el = card.select_one("span.companyName, [data-testid='company-name']")
+            salary_el = card.select_one("div.salary-snippet, [data-testid='attribute_snippet_testid']")
+
+            if not title_el:
                 continue
-            seen.add(url)
-            summary = entry.get("summary", "") or entry.get("description", "")
-            salary_text = _find_salary(summary)
+            title = title_el.get_text(strip=True)
+            href = title_el.get("href", "")
+            job_url = f"https://cz.indeed.com{href}" if href.startswith("/") else href
+            if job_url in seen or not title:
+                continue
+            seen.add(job_url)
+            company = company_el.get_text(strip=True) if company_el else ""
+            salary_text = salary_el.get_text(strip=True) if salary_el else ""
             offers.append(JobOffer(
-                title=entry.get("title", ""),
-                company=entry.get("author", "") or _find_company(summary),
-                url=url,
+                title=title,
+                company=company,
+                url=job_url,
                 source="Indeed.cz",
-                description=_strip_html(summary)[:800],
+                description=f"{title} @ {company}",
                 salary_text=salary_text,
                 salary_min=parse_salary(salary_text),
                 location=LOCATION,
