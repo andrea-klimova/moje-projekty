@@ -1,0 +1,14 @@
+[
+  {
+    "week": "20. 03. 2026",
+    "generated": "2026-03-20T13:15:46.653477+00:00",
+    "articles": 118,
+    "categories": {
+      "🔧 DevOps & CI/CD": 38,
+      "☁️ Cloud & Kubernetes": 41,
+      "🐧 Linux & Open Source": 33,
+      "💰 FinOps & Cloud Cost": 2,
+      "🔒 Security & DevSecOps": 4
+    }
+  }
+]
