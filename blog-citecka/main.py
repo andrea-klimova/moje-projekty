@@ -103,12 +103,12 @@ def fetch_articles(days_back: int = DAYS_BACK) -> dict:
 
 MAX_ARTICLES = 20  # maximální počet článků odeslaných do AI
 
-OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_MODEL    = "mistralai/mistral-7b-instruct:free"
+GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL    = "llama-3.1-8b-instant"
 
 
 def summarize_with_openrouter(articles_by_category: dict) -> str:
-    """Pošle články do OpenRouter API a vrátí česká shrnutí + náměty."""
+    """Pošle články do Groq API a vrátí česká shrnutí + náměty."""
 
     # Vyber maximálně MAX_ARTICLES nejnovějších článků celkem (RSS feedy jsou seřazeny od nejnovějších)
     all_articles = [
@@ -123,7 +123,7 @@ def summarize_with_openrouter(articles_by_category: dict) -> str:
     for category, article in all_articles:
         limited_by_category.setdefault(category, []).append(article)
 
-    print(f"   Odesílám do OpenRouter: {len(all_articles)} článků (limit {MAX_ARTICLES})")
+    print(f"   Odesílám do Groq: {len(all_articles)} článků (limit {MAX_ARTICLES})")
 
     articles_text = ""
     for category, articles in limited_by_category.items():
@@ -160,19 +160,19 @@ Piš srozumitelně a prakticky. Vyhni se obecnostem.
     time.sleep(3)  # pauza před požadavkem — ochrana před překročením API limitu
 
     response = requests.post(
-        OPENROUTER_ENDPOINT,
+        GROQ_ENDPOINT,
         headers={
-            "Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}",
+            "Authorization": f"Bearer {os.environ['GROQ_API_KEY']}",
             "Content-Type":  "application/json",
         },
         json={
-            "model":    OPENROUTER_MODEL,
+            "model":    GROQ_MODEL,
             "messages": [{"role": "user", "content": prompt}],
         },
         timeout=60,
     )
     if not response.ok:
-        print(f"  ❌ OpenRouter chyba {response.status_code}: {response.text}")
+        print(f"  ❌ Groq chyba {response.status_code}: {response.text}")
         response.raise_for_status()
 
     time.sleep(2)  # pauza po požadavku — ochrana před překročením API limitu
@@ -270,7 +270,7 @@ def build_html_email(ai_content: str, article_count: int, week: str) -> str:
     {body}
   </div>
   <div class="footer">
-    Generováno přes OpenRouter AI (Llama 3.1) &amp; GitHub Actions ·
+    Generováno přes Groq AI (Llama 3.1) &amp; GitHub Actions ·
     <a href="https://github.com/andrea-klimova/moje-projekty">andrea-klimova/moje-projekty</a>
   </div>
 </body>
@@ -337,7 +337,7 @@ def main():
         print("⚠️  Žádné nové články — e-mail se neodesílá.")
         return
 
-    print("🤖 Volám OpenRouter API...")
+    print("🤖 Volám Groq API...")
     ai_content = summarize_with_openrouter(articles)
 
     print("📧 Sestavuji e-mail...")
