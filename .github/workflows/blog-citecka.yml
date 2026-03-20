@@ -1,0 +1,40 @@
+name: Týdenní přehled blogů
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'   # každé pondělí v 7:00 UTC (= 8:00 nebo 9:00 v ČR)
+  workflow_dispatch:        # možnost spustit ručně přes GitHub UI
+
+jobs:
+  blog-digest:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write       # potřeba pro commit history.json
+
+    steps:
+      - name: Checkout repozitáře
+        uses: actions/checkout@v4
+
+      - name: Nastavení Pythonu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalace závislostí
+        run: pip install -r blog-citecka/requirements.txt
+
+      - name: Spuštění blog čtečky
+        env:
+          GEMINI_API_KEY:      ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_ADDRESS:       ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python blog-citecka/main.py
+
+      - name: Ulož historii do repozitáře
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add blog-citecka/history.json
+          git diff --staged --quiet || git commit -m "Aktualizace historie $(date '+%d. %m. %Y') [skip ci]"
+          git push
