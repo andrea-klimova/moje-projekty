@@ -1,3 +1,4 @@
+# verze 2.0 - OpenRouter
 #!/usr/bin/env python3
 """
 Blog čtečka — automatické české shrnutí blogů přes OpenRouter API + Gmail
