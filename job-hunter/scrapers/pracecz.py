@@ -9,10 +9,14 @@ from config import LOCATION
 BASE_URL = "https://www.prace.cz"
 
 SEARCH_URLS = [
-    f"{BASE_URL}/prace/q-marketing/Praha/",
-    f"{BASE_URL}/prace/q-brand-manager/Praha/",
-    f"{BASE_URL}/prace/q-performance-marketing/Praha/",
-    f"{BASE_URL}/prace/q-PPC-specialista/Praha/",
+    (
+        f"{BASE_URL}/hledat/"
+        "?searchForm%5Blocality_codes%5D=R200000%3D10"
+        "&searchForm%5Bprofs%5D=Marketing%2C+m%C3%A9dia+a+reklama"
+        "&searchForm%5Bemployment_type_codes%5D%5B%5D=201300001"
+        "&searchForm%5Bminimal_salary%5D=40000"
+        "&searchForm%5Bsearch%5D="
+    ),
 ]
 
 
@@ -37,12 +41,15 @@ class PraceCzScraper:
                 or soup.select("div[data-jobad-id]")
                 or soup.select("li.search-result__item")
                 or soup.select("div.job-item")
+                or soup.select("div.standalone-card")
+                or soup.select("li[class*='result']")
+                or soup.select("div[class*='job']")
             )
 
             for card in cards:
-                title_el = card.select_one("h2 a, h3 a, a[data-link='title'], a.title")
-                company_el = card.select_one(".employer, .company, span[class*='company']")
-                salary_el = card.select_one(".salary, [class*='salary'], [class*='plat']")
+                title_el = card.select_one("h2 a, h3 a, a[data-link='title'], a.title, a[href*='/prace/']")
+                company_el = card.select_one(".employer, .company, span[class*='company'], span[class*='employer']")
+                salary_el = card.select_one(".salary, [class*='salary'], [class*='plat'], [class*='wage']")
 
                 if not title_el:
                     continue
