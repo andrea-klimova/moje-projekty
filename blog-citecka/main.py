@@ -104,7 +104,7 @@ def fetch_articles(days_back: int = DAYS_BACK) -> dict:
 MAX_ARTICLES = 20  # maximální počet článků odeslaných do AI
 
 OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_MODEL    = "meta-llama/llama-3.1-8b-instruct:free"
+OPENROUTER_MODEL    = "mistralai/mistral-7b-instruct:free"
 
 
 def summarize_with_openrouter(articles_by_category: dict) -> str:
