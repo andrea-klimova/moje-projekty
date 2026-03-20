@@ -106,7 +106,7 @@ MAX_ARTICLES = 20  # maximální počet článků odeslaných do Gemini
 def summarize_with_gemini(articles_by_category: dict) -> str:
     """Pošle články do Gemini a vrátí česká shrnutí + náměty."""
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
     # Vyber maximálně MAX_ARTICLES nejnovějších článků celkem (RSS feedy jsou seřazeny od nejnovějších)
     all_articles = [
@@ -155,6 +155,7 @@ Klíčové body: [3 stručné body]
 Piš srozumitelně a prakticky. Vyhni se obecnostem.
 """
 
+    time.sleep(3)  # pauza před požadavkem — ochrana před překročením API limitu
     response = model.generate_content(prompt)
     time.sleep(2)  # pauza po požadavku — ochrana před překročením API limitu
     return response.text
