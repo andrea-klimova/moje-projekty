@@ -29,7 +29,30 @@ Jsi recruiter a career coach specializovaný na marketing. Tvým úkolem je vyho
 
 ### MOJE CV / PROFIL
 
-[SEM VLOŽ OBSAH SVÉHO CV NEBO KRÁTKÝ POPIS ZKUŠENOSTÍ]
+**Jméno:** Andrea Klímová
+
+**Aktuální pozice:** Marketing Specialist — ELOS Technologies s.r.o. (10/2022 – nyní, Praha)
+- Správa firemního webu (struktura, články, případové studie, reference)
+- Copywriting: blogy, odborné články, newslettery
+- Grafika: Canva, Figma, Adobe
+- Analytika: reporting, návštěvnost, dosah, výkon kampaní (Google Analytics 4)
+- Spolupráce s vývojáři a designéry při rozvoji webu
+- Interní komunikace a ambasadoring
+- Organizace eventů, workshopů, teambuildingů pro klienty i zaměstnance
+
+**Předchozí zkušenosti:**
+- Back Office Manager — ELOS Technologies s.r.o. (12/2017–9/2022) — fakturace (Pohoda), administrativa, cestovní příkazy, smluvní dokumentace, komunikace s dodavateli
+- Event Manager — Globe Bookstore and Cafe (5/2014–7/2017) — chod kavárny a knihkupectví, vedení týmu, objednávky, finanční agenda, organizace tematických večerů
+
+**Dovednosti:**
+- Marketing: HubSpot, základní SEO a PPC, Google Analytics 4, copywriting, plánování kampaní, tvorba obsahu, správa sociálních sítí, newslettery
+- Technické: MS Excel, MS Word, MS PowerPoint, Canva, Figma, Adobe, Confluence, Pohoda, ChatGPT
+
+**Vzdělání:** SOŠ Frýdek-Místek, Obor Podnikání (Maturita)
+
+**Jazyky:** Čeština (rodilá mluvčí), Angličtina B2 (aktivní)
+
+**Kurzy:** Letní akademie digitálního marketingu, Canva & Figma, LinkedIn pro personal branding, Copywriting & PR (vše 2022–2024)
 
 ---
 
@@ -70,8 +93,7 @@ Odpověz přehledně ve struktuře výše. Buď konkrétní a upřímný/á.
 
 1. Otevři [claude.ai](https://claude.ai) nebo jiného AI asistenta
 2. Zkopíruj prompt výše
-3. Nahraď `[SEM VLOŽ OBSAH SVÉHO CV...]` svým CV nebo shrnutím zkušeností
-4. Nahraď `[SEM VLOŽ TEXT PRACOVNÍ NABÍDKY]` textem konkrétní nabídky
+3. CV je již vyplněno — pouze nahraď `[SEM VLOŽ TEXT PRACOVNÍ NABÍDKY]` textem konkrétní nabídky
 5. Odešli a vyhodnoť výsledek
 6. Zaznamenej výsledek do `POZNAMKY.md`
 
