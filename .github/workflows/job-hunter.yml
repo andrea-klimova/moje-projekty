@@ -1,0 +1,41 @@
+name: Job Hunter
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # každý den v 7:00 UTC (9:00 Praha)
+  workflow_dispatch:        # ruční spuštění kdykoliv
+
+permissions:
+  contents: write           # potřeba pro commit history.json zpět do repo
+
+jobs:
+  hunt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repozitáře
+        uses: actions/checkout@v4
+
+      - name: Nastavit Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Nainstalovat závislosti
+        run: pip install -r job-hunter/requirements.txt
+
+      - name: Spustit Job Hunter
+        working-directory: job-hunter
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python main.py
+
+      - name: Uložit historii odeslaných nabídek
+        run: |
+          git config user.name "Job Hunter Bot"
+          git config user.email "action@github.com"
+          git add job-hunter/history.json
+          git diff --staged --quiet || git commit -m "Aktualizace historie nabídek $(date +'%Y-%m-%d') [skip ci]"
+          git push
