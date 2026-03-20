@@ -106,7 +106,7 @@ MAX_ARTICLES = 20  # maximální počet článků odeslaných do Gemini
 def summarize_with_gemini(articles_by_category: dict) -> str:
     """Pošle články do Gemini a vrátí česká shrnutí + náměty."""
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    model = genai.GenerativeModel("gemini-2.0-flash")
 
     # Vyber maximálně MAX_ARTICLES nejnovějších článků celkem (RSS feedy jsou seřazeny od nejnovějších)
     all_articles = [
