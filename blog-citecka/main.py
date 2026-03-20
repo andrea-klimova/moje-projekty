@@ -98,7 +98,7 @@ def fetch_articles(days_back: int = DAYS_BACK) -> dict:
     return result
 
 
-# ── Gemini API ───────────────────────────────────────────────────────────────
+# ── OpenRouter API ───────────────────────────────────────────────────────────
 
 MAX_ARTICLES = 20  # maximální počet článků odeslaných do AI
 
