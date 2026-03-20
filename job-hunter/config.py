@@ -62,12 +62,12 @@ AGENCIES = [
     },
     {
         "name": "Rohlik Group",
-        "url": "https://www.rohlik.group/careers",
+        "url": "https://www.rohlik.group/cs/kariera",
         "keyword": "marketing",
     },
     {
-        "name": "Kentico",
-        "url": "https://www.kentico.com/careers",
+        "name": "Kentico (Xperience)",
+        "url": "https://www.kentico.com/company/careers",
         "keyword": "marketing",
     },
     {
@@ -77,12 +77,12 @@ AGENCIES = [
     },
     {
         "name": "Gen Digital (Avast)",
-        "url": "https://www.gendigital.com/us/en/careers/",
+        "url": "https://careers.gendigital.com/",
         "keyword": "marketing",
     },
     {
         "name": "Livesport",
-        "url": "https://www.livesport.eu/cs/kariera/",
+        "url": "https://www.livesport.eu/kariera/",
         "keyword": "marketing",
     },
     {
@@ -92,7 +92,7 @@ AGENCIES = [
     },
     {
         "name": "Notino",
-        "url": "https://jobs.notino.cz/",
+        "url": "https://www.notino.cz/kariera/",
         "keyword": "marketing",
     },
     {
