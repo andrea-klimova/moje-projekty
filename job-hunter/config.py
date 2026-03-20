@@ -34,11 +34,20 @@ WANT_KEYWORDS = [
 
 # Klíčová slova která nechceme
 DONT_WANT_KEYWORDS = [
+    # Sociální sítě a influencer
     "community manager", "community manažer",
     "influencer", "influencer marketing",
     "event manager", "eventový marketing", "events manager",
     "správa sociálních sítí", "social media manager",
     "tiktok", "instagram manažer", "facebook manažer",
+    # Obchodní pozice
+    "obchodní zástupce", "obchodní zástupkyně",
+    "obchodní manažer", "obchodní manažerka",
+    "sales manager", "sales representative", "sales rep",
+    "account manager", "key account",
+    "obchodní ředitel", "obchodní ředitelka",
+    "prodejce", "prodejkyně",
+    "business developer", "business development manager",
 ]
 
 # Minimální mzda v Kč
