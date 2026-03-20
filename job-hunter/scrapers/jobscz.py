@@ -10,10 +10,9 @@ from config import LOCATION
 # --- Jobs.cz ---
 
 JOBS_CZ_QUERIES = [
-    "https://www.jobs.cz/prace/q-marketing/Praha/",
-    "https://www.jobs.cz/prace/q-brand-manager/Praha/",
-    "https://www.jobs.cz/prace/q-performance-marketing/Praha/",
-    "https://www.jobs.cz/prace/q-PPC-specialista/Praha/",
+    "https://www.jobs.cz/prace/praha/marketing/",
+    "https://www.jobs.cz/prace/praha/pr-komunikace/",
+    "https://www.jobs.cz/prace/praha/marketing/?locality%5Bradius%5D=10",
 ]
 
 # --- Indeed.cz (záloha) ---
