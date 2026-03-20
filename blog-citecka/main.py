@@ -8,6 +8,7 @@ import os
 import json
 import re
 import smtplib
+import time
 import feedparser
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
@@ -99,13 +100,31 @@ def fetch_articles(days_back: int = DAYS_BACK) -> dict:
 
 # ── Gemini API ───────────────────────────────────────────────────────────────
 
+MAX_ARTICLES = 20  # maximální počet článků odeslaných do Gemini
+
+
 def summarize_with_gemini(articles_by_category: dict) -> str:
     """Pošle články do Gemini a vrátí česká shrnutí + náměty."""
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
     model = genai.GenerativeModel("gemini-2.0-flash")
 
+    # Vyber maximálně MAX_ARTICLES nejnovějších článků celkem (RSS feedy jsou seřazeny od nejnovějších)
+    all_articles = [
+        (category, article)
+        for category, articles in articles_by_category.items()
+        for article in articles
+    ]
+    all_articles = all_articles[:MAX_ARTICLES]
+
+    # Znovu seskup do kategorií pro přehledný prompt
+    limited_by_category: dict = {}
+    for category, article in all_articles:
+        limited_by_category.setdefault(category, []).append(article)
+
+    print(f"   Odesílám do Gemini: {len(all_articles)} článků (limit {MAX_ARTICLES})")
+
     articles_text = ""
-    for category, articles in articles_by_category.items():
+    for category, articles in limited_by_category.items():
         articles_text += f"\n\n### {category}\n"
         for a in articles:
             articles_text += f"- [{a['source']}] {a['title']}\n  {a['summary'][:300]}\n"
@@ -137,6 +156,7 @@ Piš srozumitelně a prakticky. Vyhni se obecnostem.
 """
 
     response = model.generate_content(prompt)
+    time.sleep(2)  # pauza po požadavku — ochrana před překročením API limitu
     return response.text
 
 
