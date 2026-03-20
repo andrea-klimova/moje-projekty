@@ -1,4 +1,4 @@
-"""Scraper pro Jobs.cz — RSS feed načítaný přes requests."""
+"""Scraper pro Indeed.cz — RSS feed (náhrada za nefunkční Jobs.cz RSS)."""
 import re
 import time
 import requests
@@ -6,53 +6,46 @@ import feedparser
 from .base import JobOffer, parse_salary, HEADERS
 from config import LOCATION
 
-RSS_URLS = [
-    "https://www.jobs.cz/rss/pozice/?q%5B%5D=marketing&locality%5Bradius%5D=0&locality%5Bcity%5D=Praha",
-    "https://www.jobs.cz/rss/pozice/?q[]=marketing&locality[city]=Praha",
-]
+RSS_URL = "https://cz.indeed.com/rss?q=marketing&l=Praha&radius=25&sort=date"
 
 
 class JobsCzScraper:
-    name = "Jobs.cz"
+    name = "Indeed.cz"
 
     def fetch(self) -> list[JobOffer]:
-        for url in RSS_URLS:
-            try:
-                resp = requests.get(url, headers=HEADERS, timeout=15)
-                resp.raise_for_status()
-                feed = feedparser.parse(resp.content)
-                if feed.entries:
-                    return _parse_entries(feed.entries)
-            except Exception as e:
-                print(f"  Jobs.cz URL {url[:50]}… chyba: {e}")
-        return []
+        try:
+            resp = requests.get(RSS_URL, headers=HEADERS, timeout=15)
+            resp.raise_for_status()
+            feed = feedparser.parse(resp.content)
+        except Exception as e:
+            print(f"  Indeed.cz chyba: {e}")
+            return []
+
+        offers = []
+        for entry in feed.entries:
+            title = entry.get("title", "")
+            url = entry.get("link", "").split("?")[0]
+            summary = entry.get("summary", "") or entry.get("description", "")
+            company = entry.get("author", "") or _find_company(summary)
+            salary_text = _find_salary(summary)
+
+            offers.append(JobOffer(
+                title=title,
+                company=company,
+                url=url,
+                source=self.name,
+                description=_strip_html(summary)[:800],
+                salary_text=salary_text,
+                salary_min=parse_salary(salary_text),
+                location=LOCATION,
+            ))
+            time.sleep(0.1)
+        return offers
 
 
-def _parse_entries(entries) -> list[JobOffer]:
-    offers = []
-    for entry in entries:
-        title = entry.get("title", "")
-        url = entry.get("link", "")
-        summary = entry.get("summary", "") or entry.get("description", "")
-        company = entry.get("author", "") or _extract_tag(summary, "strong")
-        salary_text = _find_salary(summary)
-        offers.append(JobOffer(
-            title=title,
-            company=company,
-            url=url,
-            source="Jobs.cz",
-            description=_strip_html(summary)[:800],
-            salary_text=salary_text,
-            salary_min=parse_salary(salary_text),
-            location=LOCATION,
-        ))
-        time.sleep(0.1)
-    return offers
-
-
-def _extract_tag(html: str, tag: str) -> str:
-    m = re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", html, re.IGNORECASE)
-    return m.group(1).strip() if m else ""
+def _find_company(html: str) -> str:
+    m = re.search(r"<b>(.*?)</b>|company[\"']:\s*[\"'](.*?)[\"']", html, re.IGNORECASE)
+    return (m.group(1) or m.group(2) or "").strip() if m else ""
 
 
 def _strip_html(html: str) -> str:

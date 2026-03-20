@@ -1,64 +1,81 @@
-"""Scraper pro Prace.cz — RSS feed načítaný přes requests."""
+"""Scraper pro Prace.cz — HTML scraping výsledků hledání."""
 import re
 import time
 import requests
-import feedparser
+from bs4 import BeautifulSoup
 from .base import JobOffer, parse_salary, HEADERS
 from config import LOCATION
 
-RSS_URLS = [
-    "https://www.prace.cz/rss/?q%5B%5D=marketing&locality%5Bradius%5D=0&locality%5Bcity%5D=Praha",
-    "https://www.prace.cz/rss/?q[]=marketing&locality[city]=Praha",
-]
+BASE_URL = "https://www.prace.cz"
+SEARCH_URL = f"{BASE_URL}/prace/marketing/?locality%5Bcity%5D=Praha"
 
 
 class PraceCzScraper:
     name = "Prace.cz"
 
     def fetch(self) -> list[JobOffer]:
-        for url in RSS_URLS:
-            try:
-                resp = requests.get(url, headers=HEADERS, timeout=15)
-                resp.raise_for_status()
-                feed = feedparser.parse(resp.content)
-                if feed.entries:
-                    return _parse_entries(feed.entries)
-            except Exception as e:
-                print(f"  Prace.cz URL {url[:50]}… chyba: {e}")
-        return []
+        try:
+            resp = requests.get(SEARCH_URL, headers=HEADERS, timeout=15)
+            resp.raise_for_status()
+        except Exception as e:
+            print(f"  Prace.cz chyba: {e}")
+            return []
 
+        soup = BeautifulSoup(resp.text, "lxml")
+        offers = []
 
-def _parse_entries(entries) -> list[JobOffer]:
-    offers = []
-    for entry in entries:
-        title = entry.get("title", "")
-        url = entry.get("link", "")
-        summary = entry.get("summary", "") or entry.get("description", "")
-        company = entry.get("author", "") or _extract_tag(summary, "strong")
-        salary_text = _find_salary(summary)
-        offers.append(JobOffer(
-            title=title,
-            company=company,
-            url=url,
-            source="Prace.cz",
-            description=_strip_html(summary)[:800],
-            salary_text=salary_text,
-            salary_min=parse_salary(salary_text),
-            location=LOCATION,
-        ))
-        time.sleep(0.1)
-    return offers
+        # Prace.cz používá různé verze layoutu — zkusíme více selektorů
+        cards = (
+            soup.select("article.search-result-item")
+            or soup.select("div.job-item")
+            or soup.select("li[data-jobid]")
+            or soup.select("div[class*='job-card']")
+        )
 
+        if not cards:
+            # Fallback: hledáme všechny <a> s /prace/ v href
+            for a in soup.find_all("a", href=re.compile(r"/prace/[^/]+/[^/]+")):
+                title = a.get_text(strip=True)
+                href = a.get("href", "")
+                if not title or len(title) < 8:
+                    continue
+                url = href if href.startswith("http") else BASE_URL + href
+                offers.append(JobOffer(
+                    title=title,
+                    company="",
+                    url=url,
+                    source=self.name,
+                    description=title,
+                    location=LOCATION,
+                ))
+            return offers
 
-def _extract_tag(html: str, tag: str) -> str:
-    m = re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", html, re.IGNORECASE)
-    return m.group(1).strip() if m else ""
+        for card in cards:
+            title_el = card.select_one("h2 a, h3 a, a.title, a[href*='/prace/']")
+            company_el = card.select_one(".employer, .company, .firma, strong")
+            salary_el = card.select_one(".salary, .plat, [class*='salary']")
 
+            title = title_el.get_text(strip=True) if title_el else ""
+            company = company_el.get_text(strip=True) if company_el else ""
+            salary_text = salary_el.get_text(strip=True) if salary_el else ""
+            url = title_el.get("href", "") if title_el else ""
+            if url and not url.startswith("http"):
+                url = BASE_URL + url
+            description = card.get_text(" ", strip=True)
 
-def _strip_html(html: str) -> str:
-    return re.sub(r"<[^>]+>", " ", html).strip()
+            if not title or not url:
+                continue
 
+            offers.append(JobOffer(
+                title=title,
+                company=company,
+                url=url,
+                source=self.name,
+                description=description[:800],
+                salary_text=salary_text,
+                salary_min=parse_salary(salary_text),
+                location=LOCATION,
+            ))
+            time.sleep(0.2)
 
-def _find_salary(text: str) -> str:
-    m = re.search(r"(\d[\d\s]*(?:Kč|CZK|tis\.?\s*Kč|k\b)[^<\n]*)", text, re.IGNORECASE)
-    return m.group(1).strip() if m else ""
+        return offers
