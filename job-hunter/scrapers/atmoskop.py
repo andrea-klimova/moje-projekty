@@ -6,7 +6,7 @@ from .base import JobOffer, parse_salary, HEADERS
 from config import LOCATION
 
 BASE_URL = "https://www.atmoskop.cz"
-SEARCH_URL = f"{BASE_URL}/prace?q=marketing&l=Praha"
+SEARCH_URL = f"{BASE_URL}/nabidky?q=marketing&lokace=Praha"
 
 
 class AtmoskopScraper:

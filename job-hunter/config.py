@@ -58,28 +58,28 @@ AGENCIES = [
     },
     {
         "name": "Ogilvy Prague",
-        "url": "https://www.ogilvy.cz/kariera/",
+        "url": "https://www.ogilvy.cz/prace/",
         "keyword": "marketing",
     },
     {
         "name": "BBDO Prague",
-        "url": "https://www.bbdoprague.cz/kariera/",
+        "url": "https://www.bbdo.cz/kariera/",
         "keyword": "marketing",
     },
     {
         "name": "Mindshare Czech",
-        "url": "https://www.mindshare.cz/kariera/",
+        "url": "https://www.groupm.com/office/prague/",
         "keyword": "marketing",
     },
     {
         "name": "PHD Media",
-        "url": "https://www.phd.cz/kariera/",
+        "url": "https://www.phdmedia.com/czech-republic/",
         "keyword": "marketing",
     },
     # --- Firmy se silným marketingem (ne IT) ---
     {
         "name": "Plzeňský Prazdroj",
-        "url": "https://kariera.prazdroj.cz/",
+        "url": "https://www.prazdroj.cz/kariera",
         "keyword": "marketing",
     },
     {
@@ -89,12 +89,12 @@ AGENCIES = [
     },
     {
         "name": "O2 Czech Republic",
-        "url": "https://www.o2.cz/kariera/",
+        "url": "https://jobs.o2.cz/",
         "keyword": "marketing",
     },
     {
         "name": "Alza.cz",
-        "url": "https://kariera.alza.cz/",
+        "url": "https://www.alza.cz/kariera/",
         "keyword": "marketing",
     },
     {

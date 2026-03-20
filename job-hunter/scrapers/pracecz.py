@@ -9,10 +9,10 @@ from config import LOCATION
 BASE_URL = "https://www.prace.cz"
 
 SEARCH_URLS = [
-    f"{BASE_URL}/prace/?q%5B%5D=marketing&locality%5Bcity%5D=Praha",
-    f"{BASE_URL}/prace/?q%5B%5D=brand+manager&locality%5Bcity%5D=Praha",
-    f"{BASE_URL}/prace/?q%5B%5D=performance+marketing&locality%5Bcity%5D=Praha",
-    f"{BASE_URL}/prace/?q%5B%5D=PPC+specialista&locality%5Bcity%5D=Praha",
+    f"{BASE_URL}/prace/q-marketing/Praha/",
+    f"{BASE_URL}/prace/q-brand-manager/Praha/",
+    f"{BASE_URL}/prace/q-performance-marketing/Praha/",
+    f"{BASE_URL}/prace/q-PPC-specialista/Praha/",
 ]
 
 
