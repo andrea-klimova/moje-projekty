@@ -7,21 +7,35 @@ from .base import JobOffer, parse_salary, HEADERS
 from config import LOCATION
 
 BASE_URL = "https://www.profesia.cz"
-SEARCH_URL = f"{BASE_URL}/prace/marketing/Praha/"
+SEARCH_URLS = [
+    f"{BASE_URL}/prace/marketing/Praha/",
+    f"{BASE_URL}/prace/brand-manager/Praha/",
+    f"{BASE_URL}/prace/ppc-specialista/Praha/",
+    f"{BASE_URL}/prace/digitalni-marketing/Praha/",
+]
 
 
 class JobstackScraper:
     name = "Profesia.cz"
 
     def fetch(self) -> list[JobOffer]:
-        try:
-            resp = requests.get(SEARCH_URL, headers=HEADERS, timeout=15)
-            resp.raise_for_status()
-        except Exception as e:
-            print(f"  Profesia.cz: chyba: {e}")
-            return []
+        seen_urls: set[str] = set()
+        offers = []
 
-        soup = BeautifulSoup(resp.text, "lxml")
+        for search_url in SEARCH_URLS:
+            try:
+                resp = requests.get(search_url, headers=HEADERS, timeout=15)
+                resp.raise_for_status()
+            except Exception as e:
+                print(f"  Profesia.cz ({search_url[-30:]}): chyba: {e}")
+                continue
+            offers.extend(self._parse(resp.text, seen_urls))
+            time.sleep(0.5)
+
+        return offers
+
+    def _parse(self, html: str, seen_urls: set) -> list[JobOffer]:
+        soup = BeautifulSoup(html, "lxml")
         offers = []
 
         # Profesia.cz — aktuální struktura (li.list-row nebo article s data-id)
@@ -72,6 +86,10 @@ class JobstackScraper:
             # Přeskočit pokud URL není na konkrétní nabídku
             if not re.search(r"/(prace|ponuka)/[^/]+/[^/]+", url):
                 continue
+
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
 
             offers.append(JobOffer(
                 title=title,
