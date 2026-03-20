@@ -50,54 +50,56 @@ LOCATION = "Praha"
 
 # 10 doporučených firem/agentur v Praze — sledujeme jejich kariérní stránky
 AGENCIES = [
+    # --- Marketingové agentury ---
     {
-        "name": "Productboard",
-        "url": "https://www.productboard.com/careers/",
+        "name": "McCann Prague",
+        "url": "https://mccann.cz/kariera/",
         "keyword": "marketing",
     },
     {
-        "name": "Kiwi.com",
-        "url": "https://jobs.kiwi.com/",
+        "name": "Ogilvy Prague",
+        "url": "https://www.ogilvy.cz/kariera/",
         "keyword": "marketing",
     },
     {
-        "name": "Rohlik Group",
-        "url": "https://www.rohlik.group/cs/kariera",
+        "name": "BBDO Prague",
+        "url": "https://www.bbdoprague.cz/kariera/",
         "keyword": "marketing",
     },
     {
-        "name": "Kentico (Xperience)",
-        "url": "https://www.kentico.com/company/careers",
+        "name": "Mindshare Czech",
+        "url": "https://www.mindshare.cz/kariera/",
         "keyword": "marketing",
     },
     {
-        "name": "STRV",
-        "url": "https://www.strv.com/careers",
+        "name": "PHD Media",
+        "url": "https://www.phd.cz/kariera/",
+        "keyword": "marketing",
+    },
+    # --- Firmy se silným marketingem (ne IT) ---
+    {
+        "name": "Plzeňský Prazdroj",
+        "url": "https://kariera.prazdroj.cz/",
         "keyword": "marketing",
     },
     {
-        "name": "Gen Digital (Avast)",
-        "url": "https://careers.gendigital.com/",
+        "name": "dm drogerie markt CZ",
+        "url": "https://www.dm.cz/kariera/",
         "keyword": "marketing",
     },
     {
-        "name": "Livesport",
-        "url": "https://www.livesport.eu/kariera/",
+        "name": "O2 Czech Republic",
+        "url": "https://www.o2.cz/kariera/",
         "keyword": "marketing",
     },
     {
-        "name": "Rossum",
-        "url": "https://rossum.ai/careers/",
+        "name": "Alza.cz",
+        "url": "https://kariera.alza.cz/",
         "keyword": "marketing",
     },
     {
-        "name": "Notino",
-        "url": "https://www.notino.cz/kariera/",
-        "keyword": "marketing",
-    },
-    {
-        "name": "Mall.cz / Allegro",
-        "url": "https://kariera.mall.cz/",
+        "name": "Mondelez Czech Republic",
+        "url": "https://www.mondelezinternational.com/careers",
         "keyword": "marketing",
     },
 ]
