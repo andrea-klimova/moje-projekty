@@ -1,6 +1,13 @@
 """Filtrování nabídek podle klíčových slov a platu."""
 from scrapers.base import JobOffer
-from config import WANT_KEYWORDS, DONT_WANT_KEYWORDS, MIN_SALARY
+from config import DONT_WANT_KEYWORDS, MIN_SALARY
+
+# Broad marketing check — stačí že jde o marketingovou pozici
+MARKETING_WORDS = [
+    "market", "brand", "digital", "growth", "ppc", "sem", "seo",
+    "campaign", "kampaň", "reklam", "content", "komunikac",
+    "analytik", "analytic", "performance", "advertis", "promo",
+]
 
 
 class JobFilter:
@@ -8,25 +15,26 @@ class JobFilter:
     def filter(self, offers: list[JobOffer]) -> list[JobOffer]:
         results = []
         for offer in offers:
-            if self._is_relevant(offer):
+            reason = self._reject_reason(offer)
+            if reason is None:
                 results.append(offer)
         return results
 
-    def _is_relevant(self, offer: JobOffer) -> bool:
+    def _reject_reason(self, offer: JobOffer) -> str | None:
         text = f"{offer.title} {offer.description} {offer.salary_text}".lower()
 
-        # Vyřadit pokud obsahuje nežádoucí klíčová slova
+        # 1. Vyřadit pokud obsahuje nežádoucí klíčová slova
         for kw in DONT_WANT_KEYWORDS:
             if kw.lower() in text:
-                return False
+                return f"DONT_WANT: {kw}"
 
-        # Filtr platu — pouze pokud je plat uveden a je nižší než minimum
+        # 2. Filtr platu — pouze pokud je explicitně uveden a nižší než minimum
         if offer.salary_min is not None and offer.salary_min < MIN_SALARY:
-            return False
+            return f"PLAT: {offer.salary_min} < {MIN_SALARY}"
 
-        # Musí obsahovat alespoň 1 žádoucí klíčové slovo nebo "marketing" v názvu
-        title_lower = offer.title.lower()
-        if "marketing" in title_lower:
-            return True
+        # 3. Musí mít alespoň slabou vazbu na marketing
+        #    (zachytí navigační a jiné nerelevantní výsledky)
+        if not any(w in text for w in MARKETING_WORDS):
+            return "NERELEVANTNÍ: žádné marketingové slovo"
 
-        return any(kw.lower() in text for kw in WANT_KEYWORDS)
+        return None  # prošlo

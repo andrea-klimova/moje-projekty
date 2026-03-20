@@ -1,4 +1,4 @@
-"""Scraper pro Profesia.cz (náhrada za nefunkční Jobstack.cz)."""
+"""Scraper pro Profesia.cz — HTML scraping výsledků hledání."""
 import re
 import time
 import requests
@@ -18,27 +18,59 @@ class JobstackScraper:
             resp = requests.get(SEARCH_URL, headers=HEADERS, timeout=15)
             resp.raise_for_status()
         except Exception as e:
-            print(f"  Profesia.cz: chyba při načítání: {e}")
+            print(f"  Profesia.cz: chyba: {e}")
             return []
 
         soup = BeautifulSoup(resp.text, "lxml")
         offers = []
 
-        for card in soup.select("li.list-row, div.list-row, article[data-job-id]"):
-            title_el = card.select_one("h2 a, h3 a, .title a, a.position-name")
-            company_el = card.select_one(".employer, .company, span[itemprop='name']")
-            salary_el = card.select_one(".label-group .label, .salary, [class*='salary']")
-            link_el = card.select_one("a[href]")
+        # Profesia.cz — aktuální struktura (li.list-row nebo article s data-id)
+        cards = (
+            soup.select("li.list-row")
+            or soup.select("article[data-id]")
+            or soup.select("div.offer-list-item")
+        )
 
-            title = title_el.get_text(strip=True) if title_el else ""
-            company = company_el.get_text(strip=True) if company_el else ""
-            salary_text = salary_el.get_text(strip=True) if salary_el else ""
-            url = (title_el or link_el or {}).get("href", "") if (title_el or link_el) else ""
+        for card in cards:
+            # Titulek a URL
+            title_el = (
+                card.select_one("a.title")
+                or card.select_one("h2 > a")
+                or card.select_one("h3 > a")
+                or card.select_one("a[href*='/ponuka/']")
+                or card.select_one("a[href*='/prace/']")
+            )
+            # Firma
+            company_el = (
+                card.select_one("span.employer")
+                or card.select_one("span[itemprop='name']")
+                or card.select_one(".company-name")
+                or card.select_one("strong")
+            )
+            # Plat
+            salary_el = (
+                card.select_one("span.label")
+                or card.select_one(".salary")
+                or card.select_one("[class*='salary']")
+                or card.select_one("[class*='plat']")
+            )
+
+            if not title_el:
+                continue
+
+            title = title_el.get_text(strip=True)
+            url = title_el.get("href", "")
             if url and not url.startswith("http"):
                 url = BASE_URL + url
+            company = company_el.get_text(strip=True) if company_el else ""
+            salary_text = salary_el.get_text(strip=True) if salary_el else ""
             description = card.get_text(" ", strip=True)
 
-            if not title or not url:
+            if not title or not url or len(title) < 4:
+                continue
+
+            # Přeskočit pokud URL není na konkrétní nabídku
+            if not re.search(r"/(prace|ponuka)/[^/]+/[^/]+", url):
                 continue
 
             offers.append(JobOffer(
@@ -51,6 +83,6 @@ class JobstackScraper:
                 salary_min=parse_salary(salary_text),
                 location=LOCATION,
             ))
-            time.sleep(0.2)
+            time.sleep(0.1)
 
         return offers
