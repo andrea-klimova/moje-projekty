@@ -1,7 +1,7 @@
-# verze 2.0 - OpenRouter
+# verze 2.0 - Groq API
 #!/usr/bin/env python3
 """
-Blog čtečka — automatické české shrnutí blogů přes OpenRouter API + Gmail
+Blog čtečka — automatické české shrnutí blogů přes Groq API + Gmail
 Spouští se každé pondělí v 7:00 přes GitHub Actions
 """
 
@@ -15,6 +15,35 @@ import feedparser
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+
+# ── Konfigurace ze souborů ───────────────────────────────────────────────────
+
+BASE_DIR = os.path.dirname(__file__)
+
+
+def load_config() -> dict:
+    """Načte config.json — seznam blogů a nastavení."""
+    path = os.path.join(BASE_DIR, "config.json")
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_prompt_template() -> str:
+    """Načte AI prompt z ai-prompt.txt."""
+    path = os.path.join(BASE_DIR, "ai-prompt.txt")
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def build_feeds_from_config(config: dict) -> dict:
+    """Sestaví slovník FEEDS pouze z povolených blogů."""
+    feeds = {}
+    for category, blogs in config["feeds"].items():
+        enabled = [(b["name"], b["url"]) for b in blogs if b.get("enabled", True)]
+        if enabled:
+            feeds[category] = enabled
+    return feeds
 
 
 # ── RSS feedy ────────────────────────────────────────────────────────────────
@@ -131,31 +160,8 @@ def summarize_with_openrouter(articles_by_category: dict) -> str:
         for a in articles:
             articles_text += f"- [{a['source']}] {a['title']} | URL: {a['link']}\n  {a['summary'][:300]}\n"
 
-    prompt = f"""Jsi expert na DevOps, cloud, Linux, FinOps a bezpečnost. \
-Analyzuj tyto články z odborných blogů z tohoto týdne a odpověz VÝHRADNĚ ČESKY.
-
-ČLÁNKY:
-{articles_text}
-
-Tvůj výstup musí mít přesně tuto strukturu:
-
-## 📰 Nejzajímavější články tohoto týdne
-
-Pro každou kategorii vyber 2–4 nejzajímavější články. U každého uveď:
-- **[Název článku](URL)** — zdroj v závorce — použij přesnou URL z dat výše jako odkaz
-- 2–3 věty shrnutí česky: co je hlavní poselství a proč je to důležité
-- Jedna věta: co z toho může prakticky využít DevOps inženýr nebo tech blogger
-
-## 💡 Náměty na blog články (10 námětů)
-
-Na základě trendů z těchto článků navrhni 10 námětů na vlastní blog články v češtině.
-Formát každého námětu:
-**[číslo]. [Konkrétní název článku]**
-Proč je to aktuální: [jedna věta]
-Klíčové body: [3 stručné body]
-
-Piš srozumitelně a prakticky. Vyhni se obecnostem.
-"""
+    prompt_template = load_prompt_template()
+    prompt = prompt_template.replace("{articles_text}", articles_text)
 
     time.sleep(3)  # pauza před požadavkem — ochrana před překročením API limitu
 
@@ -301,6 +307,14 @@ def send_email(html_body: str, week: str) -> None:
 
 # ── Historie ─────────────────────────────────────────────────────────────────
 
+def save_last_email(html_body: str) -> None:
+    """Uloží poslední vygenerovaný e-mail jako HTML pro náhled na webu."""
+    path = os.path.join(BASE_DIR, "last-email.html")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(html_body)
+    print("📄 Náhled e-mailu uložen.")
+
+
 def save_history(articles_by_category: dict, week: str) -> None:
     """Uloží výsledky do history.json."""
     path = os.path.join(os.path.dirname(__file__), "history.json")
@@ -326,8 +340,14 @@ def save_history(articles_by_category: dict, week: str) -> None:
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    now  = datetime.now()
-    week = now.strftime("%d. %m. %Y").lstrip("0")
+    now    = datetime.now()
+    week   = now.strftime("%d. %m. %Y").lstrip("0")
+    config = load_config()
+
+    global FEEDS, DAYS_BACK, MAX_ARTICLES
+    FEEDS        = build_feeds_from_config(config)
+    DAYS_BACK    = config.get("days_back",    DAYS_BACK)
+    MAX_ARTICLES = config.get("max_articles", MAX_ARTICLES)
 
     print(f"🗓️  Spuštění: {week}")
     print("🔍 Stahuji RSS feedy...")
@@ -344,6 +364,8 @@ def main():
 
     print("📧 Sestavuji e-mail...")
     html = build_html_email(ai_content, total, week)
+
+    save_last_email(html)
 
     print("📤 Odesílám e-mail...")
     send_email(html, week)

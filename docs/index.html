@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog čtečka</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a5f, #2d6a9f);
+      color: white;
+      padding: 28px 40px;
+    }
+    header h1 { font-size: 24px; margin-bottom: 4px; }
+    header p  { opacity: 0.8; font-size: 14px; }
+
+    nav {
+      background: white;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 0 40px;
+      display: flex;
+      gap: 4px;
+    }
+    nav button {
+      padding: 14px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color .2s, border-color .2s;
+    }
+    nav button:hover  { color: #2d6a9f; }
+    nav button.active { color: #1e3a5f; border-bottom-color: #2d6a9f; font-weight: 600; }
+
+    main { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 17px;
+      color: #1e3a5f;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8f0fb;
+    }
+
+    /* Historie */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #f0f4f8; text-align: left; padding: 10px 14px; color: #555; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f0f4f8; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbff; }
+    .badge {
+      display: inline-block;
+      background: #e8f0fb;
+      color: #1e3a5f;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Nastavení */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row label { flex: 1; font-size: 14px; color: #333; }
+    .setting-row input[type="text"],
+    .setting-row input[type="number"],
+    .setting-row select {
+      padding: 7px 12px;
+      border: 1px solid #d1d9e0;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 160px;
+    }
+
+    .category-block { margin-bottom: 20px; }
+    .category-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 8px;
+    }
+    .blog-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 14px;
+    }
+    .blog-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    .blog-item label { flex: 1; cursor: pointer; }
+
+    /* Prompt */
+    textarea {
+      width: 100%;
+      min-height: 320px;
+      padding: 14px;
+      border: 1px solid #d1d9e0;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      color: #1a1a2e;
+    }
+    textarea:focus { outline: none; border-color: #2d6a9f; box-shadow: 0 0 0 3px rgba(45,106,159,.1); }
+
+    /* Tlačítka */
+    .btn {
+      padding: 9px 20px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #2d6a9f; color: white; }
+    .btn-success { background: #22c55e; color: white; }
+    .btn-danger  { background: #ef4444; color: white; }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
+
+    /* Token sekce */
+    .token-box {
+      background: #fff8e1;
+      border: 1px solid #fbbf24;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .token-box strong { color: #92400e; }
+    .token-box .token-row { display: flex; gap: 8px; margin-top: 10px; }
+    .token-box input {
+      flex: 1;
+      padding: 7px 12px;
+      border: 1px solid #d1d9e0;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    /* Náhled */
+    #email-preview-frame {
+      width: 100%;
+      height: 700px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .status-msg {
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      display: none;
+    }
+    .status-msg.ok    { background: #dcfce7; color: #166534; display: block; }
+    .status-msg.error { background: #fee2e2; color: #991b1b; display: block; }
+    .status-msg.info  { background: #e0f2fe; color: #0c4a6e; display: block; }
+
+    .loading { color: #888; font-size: 14px; font-style: italic; }
+
+    /* Statistiky */
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 18px 24px;
+      flex: 1;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      text-align: center;
+    }
+    .stat-card .num { font-size: 28px; font-weight: 700; color: #1e3a5f; }
+    .stat-card .lbl { font-size: 12px; color: #888; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📰 Blog čtečka</h1>
+  <p>Automatický týdenní přehled technologických blogů · andrea-klimova/moje-projekty</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('history')">📋 Historie</button>
+  <button onclick="showTab('settings')">⚙️ Nastavení</button>
+  <button onclick="showTab('prompt')">🤖 AI Prompt</button>
+  <button onclick="showTab('preview')">📧 Náhled e-mailu</button>
+</nav>
+
+<main>
+
+  <!-- ── HISTORIE ─────────────────────────────────────────────────────── -->
+  <div id="tab-history" class="tab active">
+    <div id="stats-row" class="stats-row"></div>
+    <div class="card">
+      <h2>📋 Historie odeslaných e-mailů</h2>
+      <div id="history-content" class="loading">Načítám historii…</div>
+    </div>
+  </div>
+
+  <!-- ── NASTAVENÍ ────────────────────────────────────────────────────── -->
+  <div id="tab-settings" class="tab">
+    <div class="card">
+      <h2>⚙️ Nastavení</h2>
+      <div id="token-box-settings" class="token-box">
+        <strong>🔑 GitHub token</strong> — potřebný pro uložení změn
+        <div class="token-row">
+          <input type="password" id="gh-token-input" placeholder="ghp_xxxxxxxxxxxx">
+          <button class="btn btn-primary" onclick="saveToken()">Uložit token</button>
+          <button class="btn btn-danger"  onclick="clearToken()">Smazat</button>
+        </div>
+        <div id="token-status" style="margin-top:8px; font-size:12px; color:#666;"></div>
+      </div>
+      <div class="setting-row">
+        <label>📅 Den odesílání</label>
+        <select id="cfg-day">
+          <option value="monday">Pondělí</option>
+          <option value="tuesday">Úterý</option>
+          <option value="wednesday">Středa</option>
+          <option value="thursday">Čtvrtek</option>
+          <option value="friday">Pátek</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label>🕐 Čas odesílání (UTC)</label>
+        <input type="text" id="cfg-time" placeholder="07:00 UTC">
+      </div>
+      <div class="setting-row">
+        <label>📅 Články za posledních N dní</label>
+        <input type="number" id="cfg-days" min="1" max="30">
+      </div>
+      <div class="setting-row">
+        <label>📊 Max. článků do AI</label>
+        <input type="number" id="cfg-maxart" min="5" max="50">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📡 Sledované blogy</h2>
+      <div id="feeds-content" class="loading">Načítám seznam blogů…</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Uložit nastavení na GitHub</button>
+        <span id="settings-status" class="status-msg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROMPT ───────────────────────────────────────────────────────── -->
+  <div id="tab-prompt" class="tab">
+    <div class="card">
+      <h2>🤖 AI Prompt</h2>
+      <p style="font-size:13px; color:#666; margin-bottom:14px;">
+        Tento text se posílá do Groq AI. Placeholder <code>{articles_text}</code> bude nahrazen seznamem článků.
+      </p>
+      <textarea id="prompt-editor" spellcheck="false" class="loading">Načítám prompt…</textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="savePrompt()">💾 Uložit prompt na GitHub</button>
+        <button class="btn btn-success" onclick="resetPrompt()">↺ Obnovit výchozí</button>
+        <span id="prompt-status" class="status-msg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NÁHLED ───────────────────────────────────────────────────────── -->
+  <div id="tab-preview" class="tab">
+    <div class="card">
+      <h2>📧 Náhled posledního e-mailu</h2>
+      <p style="font-size:13px; color:#666; margin-bottom:16px;">
+        Poslední vygenerovaný e-mail — uloženo automaticky po každém spuštění.
+      </p>
+      <div id="preview-container" class="loading">Načítám náhled…</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const REPO   = "andrea-klimova/moje-projekty";
+  const BRANCH = "main";
+
+  const RAW  = (p) => `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${p}?t=${Date.now()}`;
+  const API  = (p) => `https://api.github.com/repos/${REPO}/contents/${p}`;
+  const token = () => localStorage.getItem("gh_token") || "";
+
+  // ── Tab navigace ─────────────────────────────────────────────────────────
+
+  function showTab(name) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    event.target.classList.add("active");
+
+    if (name === "history")  loadHistory();
+    if (name === "settings") loadSettings();
+    if (name === "prompt")   loadPrompt();
+    if (name === "preview")  loadPreview();
+  }
+
+  // ── Token ────────────────────────────────────────────────────────────────
+
+  function saveToken() {
+    const val = document.getElementById("gh-token-input").value.trim();
+    if (!val) return;
+    localStorage.setItem("gh_token", val);
+    document.getElementById("gh-token-input").value = "";
+    document.getElementById("token-status").textContent = "✅ Token uložen v prohlížeči.";
+  }
+
+  function clearToken() {
+    localStorage.removeItem("gh_token");
+    document.getElementById("token-status").textContent = "Token smazán.";
+  }
+
+  function initTokenUI() {
+    const t = token();
+    document.getElementById("token-status").textContent = t
+      ? "✅ Token je uložen."
+      : "⚠️ Token není nastaven — změny nebude možné uložit.";
+  }
+
+  // ── GitHub API helpers ───────────────────────────────────────────────────
+
+  async function ghGet(path) {
+    const res = await fetch(RAW(path));
+    if (!res.ok) throw new Error("Soubor nenalezen: " + path);
+    return res.text();
+  }
+
+  async function ghPut(path, content, message) {
+    const t = token();
+    if (!t) throw new Error("Chybí GitHub token. Vlož ho v záložce Nastavení.");
+
+    // Získej aktuální SHA souboru
+    const infoRes = await fetch(API(path), {
+      headers: { "Authorization": `Bearer ${t}` }
+    });
+    const info = infoRes.ok ? await infoRes.json() : {};
+    const sha  = info.sha || undefined;
+
+    const body = { message, content: btoa(unescape(encodeURIComponent(content))) };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(API(path), {
+      method:  "PUT",
+      headers: {
+        "Authorization": `Bearer ${t}`,
+        "Content-Type":  "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || "Chyba při ukládání");
+    }
+  }
+
+  function showStatus(elemId, msg, type) {
+    const el = document.getElementById(elemId);
+    el.textContent  = msg;
+    el.className    = "status-msg " + type;
+    if (type === "ok") setTimeout(() => { el.className = "status-msg"; }, 4000);
+  }
+
+  // ── HISTORIE ─────────────────────────────────────────────────────────────
+
+  async function loadHistory() {
+    const el = document.getElementById("history-content");
+    const sr = document.getElementById("stats-row");
+    try {
+      const text = await ghGet("blog-citecka/history.json");
+      const data = JSON.parse(text);
+
+      if (!data.length) {
+        el.innerHTML = "<p style='color:#888;font-size:14px;'>Žádná historie zatím.</p>";
+        return;
+      }
+
+      const last  = data[data.length - 1];
+      const total = data.reduce((s, r) => s + (r.articles || 0), 0);
+
+      sr.innerHTML = `
+        <div class="stat-card"><div class="num">${data.length}</div><div class="lbl">Odeslaných e-mailů</div></div>
+        <div class="stat-card"><div class="num">${total}</div><div class="lbl">Zpracovaných článků celkem</div></div>
+        <div class="stat-card"><div class="num">${last.articles || "—"}</div><div class="lbl">Článků v posledním běhu</div></div>
+      `;
+
+      const rows = [...data].reverse().map(r => {
+        const cats = r.categories
+          ? Object.entries(r.categories).map(([k,v]) => `${k}: ${v}`).join(" · ")
+          : "—";
+        const date = r.generated
+          ? new Date(r.generated).toLocaleString("cs-CZ", {day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})
+          : r.week;
+        return `<tr>
+          <td>${date}</td>
+          <td><span class="badge">${r.articles} článků</span></td>
+          <td style="font-size:12px;color:#666;">${cats}</td>
+        </tr>`;
+      }).join("");
+
+      el.innerHTML = `
+        <table>
+          <thead><tr><th>Datum</th><th>Rozsah</th><th>Kategorie</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    } catch(e) {
+      el.innerHTML = `<p class="status-msg error">Chyba: ${e.message}</p>`;
+    }
+  }
+
+  // ── NASTAVENÍ ─────────────────────────────────────────────────────────────
+
+  let currentConfig = null;
+
+  async function loadSettings() {
+    initTokenUI();
+    const el = document.getElementById("feeds-content");
+    try {
+      const text = await ghGet("blog-citecka/config.json");
+      currentConfig = JSON.parse(text);
+
+      document.getElementById("cfg-day").value    = currentConfig.schedule?.day    || "monday";
+      document.getElementById("cfg-time").value   = currentConfig.schedule?.time   || "07:00 UTC";
+      document.getElementById("cfg-days").value   = currentConfig.days_back        || 7;
+      document.getElementById("cfg-maxart").value = currentConfig.max_articles     || 20;
+
+      let html = "";
+      for (const [cat, blogs] of Object.entries(currentConfig.feeds)) {
+        html += `<div class="category-block">
+          <div class="category-title">${cat}</div>`;
+        blogs.forEach((b, i) => {
+          const id  = `blog-${cat}-${i}`;
+          const chk = b.enabled ? "checked" : "";
+          html += `<div class="blog-item">
+            <input type="checkbox" id="${id}" ${chk}
+              data-cat="${cat}" data-idx="${i}">
+            <label for="${id}">${b.name}</label>
+            <span style="font-size:11px;color:#aaa;">${b.url}</span>
+          </div>`;
+        });
+        html += "</div>";
+      }
+      el.innerHTML = html;
+    } catch(e) {
+      el.innerHTML = `<p class="status-msg error">Chyba: ${e.message}</p>`;
+    }
+  }
+
+  async function saveSettings() {
+    if (!currentConfig) return;
+    // Načti hodnoty z formuláře
+    currentConfig.schedule.day    = document.getElementById("cfg-day").value;
+    currentConfig.schedule.time   = document.getElementById("cfg-time").value;
+    currentConfig.days_back       = parseInt(document.getElementById("cfg-days").value);
+    currentConfig.max_articles    = parseInt(document.getElementById("cfg-maxart").value);
+
+    document.querySelectorAll("[data-cat]").forEach(cb => {
+      const cat = cb.dataset.cat;
+      const idx = parseInt(cb.dataset.idx);
+      currentConfig.feeds[cat][idx].enabled = cb.checked;
+    });
+
+    try {
+      await ghPut("blog-citecka/config.json",
+        JSON.stringify(currentConfig, null, 2),
+        "Aktualizace nastavení blogů přes web");
+      showStatus("settings-status", "✅ Nastavení uloženo!", "ok");
+    } catch(e) {
+      showStatus("settings-status", "❌ " + e.message, "error");
+    }
+  }
+
+  // ── PROMPT ────────────────────────────────────────────────────────────────
+
+  const DEFAULT_PROMPT = `Jsi expert na DevOps, cloud, Linux, FinOps a bezpečnost. Analyzuj tyto články z odborných blogů z tohoto týdne a odpověz VÝHRADNĚ ČESKY.
+
+ČLÁNKY:
+{articles_text}
+
+Tvůj výstup musí mít přesně tuto strukturu:
+
+## 📰 Nejzajímavější články tohoto týdne
+
+Pro každou kategorii vyber 2–4 nejzajímavější články. U každého uveď:
+- **[Název článku](URL)** — zdroj v závorce — použij přesnou URL z dat výše jako odkaz
+- 2–3 věty shrnutí česky: co je hlavní poselství a proč je to důležité
+- Jedna věta: co z toho může prakticky využít DevOps inženýr nebo tech blogger
+
+## 💡 Náměty na blog články (10 námětů)
+
+Na základě trendů z těchto článků navrhni 10 námětů na vlastní blog články v češtině.
+Formát každého námětu:
+**[číslo]. [Konkrétní název článku]**
+Proč je to aktuální: [jedna věta]
+Klíčové body: [3 stručné body]
+
+Piš srozumitelně a prakticky. Vyhni se obecnostem.`;
+
+  async function loadPrompt() {
+    const el = document.getElementById("prompt-editor");
+    el.classList.remove("loading");
+    try {
+      el.value = await ghGet("blog-citecka/ai-prompt.txt");
+    } catch(e) {
+      el.value = DEFAULT_PROMPT;
+    }
+  }
+
+  async function savePrompt() {
+    const content = document.getElementById("prompt-editor").value;
+    try {
+      await ghPut("blog-citecka/ai-prompt.txt", content, "Aktualizace AI promptu přes web");
+      showStatus("prompt-status", "✅ Prompt uložen!", "ok");
+    } catch(e) {
+      showStatus("prompt-status", "❌ " + e.message, "error");
+    }
+  }
+
+  function resetPrompt() {
+    document.getElementById("prompt-editor").value = DEFAULT_PROMPT;
+  }
+
+  // ── NÁHLED ────────────────────────────────────────────────────────────────
+
+  async function loadPreview() {
+    const el = document.getElementById("preview-container");
+    try {
+      const html = await ghGet("blog-citecka/last-email.html");
+      const blob = new Blob([html], { type: "text/html" });
+      const url  = URL.createObjectURL(blob);
+      el.innerHTML = `<iframe id="email-preview-frame" src="${url}"></iframe>`;
+    } catch(e) {
+      el.innerHTML = `<p class="status-msg info">
+        Náhled zatím není dostupný — spusť workflow alespoň jednou (Actions → Run workflow)
+        a soubor <code>last-email.html</code> bude automaticky uložen.
+      </p>`;
+    }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  loadHistory();
+</script>
+</body>
+</html>

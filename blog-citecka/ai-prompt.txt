@@ -1,0 +1,23 @@
+Jsi expert na DevOps, cloud, Linux, FinOps a bezpečnost. Analyzuj tyto články z odborných blogů z tohoto týdne a odpověz VÝHRADNĚ ČESKY.
+
+ČLÁNKY:
+{articles_text}
+
+Tvůj výstup musí mít přesně tuto strukturu:
+
+## 📰 Nejzajímavější články tohoto týdne
+
+Pro každou kategorii vyber 2–4 nejzajímavější články. U každého uveď:
+- **[Název článku](URL)** — zdroj v závorce — použij přesnou URL z dat výše jako odkaz
+- 2–3 věty shrnutí česky: co je hlavní poselství a proč je to důležité
+- Jedna věta: co z toho může prakticky využít DevOps inženýr nebo tech blogger
+
+## 💡 Náměty na blog články (10 námětů)
+
+Na základě trendů z těchto článků navrhni 10 námětů na vlastní blog články v češtině.
+Formát každého námětu:
+**[číslo]. [Konkrétní název článku]**
+Proč je to aktuální: [jedna věta]
+Klíčové body: [3 stručné body]
+
+Piš srozumitelně a prakticky. Vyhni se obecnostem.
