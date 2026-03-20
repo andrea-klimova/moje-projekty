@@ -129,7 +129,7 @@ def summarize_with_openrouter(articles_by_category: dict) -> str:
     for category, articles in limited_by_category.items():
         articles_text += f"\n\n### {category}\n"
         for a in articles:
-            articles_text += f"- [{a['source']}] {a['title']}\n  {a['summary'][:300]}\n"
+            articles_text += f"- [{a['source']}] {a['title']} | URL: {a['link']}\n  {a['summary'][:300]}\n"
 
     prompt = f"""Jsi expert na DevOps, cloud, Linux, FinOps a bezpečnost. \
 Analyzuj tyto články z odborných blogů z tohoto týdne a odpověz VÝHRADNĚ ČESKY.
@@ -142,7 +142,7 @@ Tvůj výstup musí mít přesně tuto strukturu:
 ## 📰 Nejzajímavější články tohoto týdne
 
 Pro každou kategorii vyber 2–4 nejzajímavější články. U každého uveď:
-- **Název článku** — zdroj v závorce
+- **[Název článku](URL)** — zdroj v závorce — použij přesnou URL z dat výše jako odkaz
 - 2–3 věty shrnutí česky: co je hlavní poselství a proč je to důležité
 - Jedna věta: co z toho může prakticky využít DevOps inženýr nebo tech blogger
 
@@ -187,6 +187,8 @@ def markdown_to_html(text: str) -> str:
     # Nadpisy
     text = re.sub(r"^## (.+)$",  r"<h2>\1</h2>", text, flags=re.MULTILINE)
     text = re.sub(r"^### (.+)$", r"<h3>\1</h3>", text, flags=re.MULTILINE)
+    # Odkazy [text](url)
+    text = re.sub(r"\[(.+?)\]\((https?://[^\)]+)\)", r'<a href="\2">\1</a>', text)
     # Tučné
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
     # Odrážky
