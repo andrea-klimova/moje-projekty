@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Hunter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">🎯 Job Hunter</div>
+    <nav>
+      <button class="tab-btn active" data-tab="offers">Nabídky</button>
+      <button class="tab-btn" data-tab="cover">Průvodní dopis</button>
+      <button class="tab-btn" data-tab="prompt">AI Prompt</button>
+      <button class="tab-btn" data-tab="settings">Nastavení</button>
+    </nav>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+</header>
+
+<main>
+
+  <!-- TAB: NABÍDKY -->
+  <div class="tab-panel active" id="tab-offers">
+
+    <!-- Statistiky -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">–</div>
+        <div class="stat-label">Celkem nabídek</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-high" style="color: var(--success)">–</div>
+        <div class="stat-label">Skóre 8+ / 10</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-zamer" style="color: var(--accent)">–</div>
+        <div class="stat-label">Mám zájem</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-prihlas" style="color: var(--success)">–</div>
+        <div class="stat-label">Přihlásila jsem se</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-cekam" style="color: var(--warning)">–</div>
+        <div class="stat-label">Čekám na odpověď</div>
+      </div>
+    </div>
+
+    <!-- Filtry -->
+    <div class="filters">
+      <div class="filter-group">
+        <label>Hledej:</label>
+        <input type="text" id="filter-search" placeholder="název, firma…">
+      </div>
+      <div class="filter-group">
+        <label>Stav:</label>
+        <select id="filter-status">
+          <option value="">Vše</option>
+          <option value="_none">Bez stavu</option>
+          <option value="zamer">Mám zájem</option>
+          <option value="prihlasena">Přihlásila jsem se</option>
+          <option value="cekam">Čekám na odpověď</option>
+          <option value="nerelevantni">Nerelevantní</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Portál:</label>
+        <select id="filter-source">
+          <option value="">Vše</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Min. skóre:</label>
+        <select id="filter-score">
+          <option value="">Vše</option>
+          <option value="8">8+</option>
+          <option value="6">6+</option>
+          <option value="4">4+</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Nabídky -->
+    <div class="offers-grid" id="offers-grid">
+      <div class="loading">Načítám nabídky…</div>
+    </div>
+
+  </div>
+
+  <!-- TAB: PRŮVODNÍ DOPIS -->
+  <div class="tab-panel" id="tab-cover">
+    <div class="cover-letter-layout">
+
+      <div class="cover-letter-card">
+        <h3>Vygeneruj průvodní dopis</h3>
+
+        <div class="offer-select-row">
+          <label style="font-size:13px; color:var(--text-light); margin-bottom:6px; display:block">Vyber nabídku:</label>
+          <select id="cover-offer-select">
+            <option value="">— vyber nabídku —</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Styl dopisu:</label>
+          <select id="cover-style">
+            <option value="profesionální">Profesionální</option>
+            <option value="přátelský a přímý">Přátelský a přímý</option>
+            <option value="kreativní">Kreativní</option>
+            <option value="stručný">Stručný (3 věty)</option>
+          </select>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px">
+          <button class="btn btn-primary" id="btn-generate-cover">✨ Generovat</button>
+          <button class="btn btn-secondary" id="btn-copy-cover">Kopírovat</button>
+        </div>
+
+        <div class="settings-note" style="margin-top:16px">
+          ℹ️ Pro generování je potřeba OpenRouter API klíč — zadej ho v záložce <strong>Nastavení</strong>.
+          Průvodní dopis se generuje přímo v prohlížeči, klíč se neposílá na žádný server.
+        </div>
+      </div>
+
+      <div class="cover-letter-card">
+        <h3>Výsledek</h3>
+        <textarea class="result-textarea" id="cover-result" placeholder="Vygenerovaný průvodní dopis se zobrazí zde…" readonly></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: AI PROMPT -->
+  <div class="tab-panel" id="tab-prompt">
+    <div class="prompt-card">
+      <h3>AI Prompt pro hodnocení nabídek</h3>
+      <p style="font-size:13px; color:var(--text-light); margin-bottom:16px">
+        Tenhle prompt dostane AI při hodnocení každé nabídky. Použij <code>{cv}</code>, <code>{title}</code>, <code>{company}</code>, <code>{description}</code> jako zástupné symboly.
+        Úpravy jsou uloženy jen v tomto prohlížeči — Python skript používá svůj vlastní prompt z <code>job-hunter/ai_scorer.py</code>.
+      </p>
+      <textarea class="prompt-textarea" id="prompt-textarea"></textarea>
+      <div class="prompt-actions">
+        <button class="btn btn-primary" id="btn-save-prompt">Uložit prompt</button>
+        <button class="btn btn-secondary" id="btn-copy-prompt">Kopírovat</button>
+        <button class="btn btn-secondary" id="btn-reset-prompt">Obnovit výchozí</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: NASTAVENÍ -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="settings-grid">
+
+      <!-- Klíčová slova -->
+      <div class="settings-card">
+        <h3>Klíčová slova — Chci</h3>
+        <p style="font-size:12px; color:var(--text-light); margin-bottom:12px">Pozice se zvýhodní pokud obsahují tato slova.</p>
+        <div class="tags-container" id="want-tags">
+          <input class="tag-input" id="want-input" placeholder="Přidej klíčové slovo…">
+        </div>
+
+        <h3 style="margin-top:20px">Klíčová slova — Nechci</h3>
+        <p style="font-size:12px; color:var(--text-light); margin-bottom:12px">Nabídky s těmito slovy v názvu budou filtrovány.</p>
+        <div class="tags-container" id="dont-tags">
+          <input class="tag-input" id="dont-input" placeholder="Přidej klíčové slovo…">
+        </div>
+      </div>
+
+      <!-- Plat + API klíč -->
+      <div class="settings-card">
+        <h3>Platové minimum</h3>
+        <div class="salary-row">
+          <input type="number" id="min-salary" step="1000" min="0">
+          <span style="font-size:14px">Kč / měsíc</span>
+        </div>
+
+        <h3>OpenRouter API klíč</h3>
+        <div class="form-row">
+          <label>Pro generování průvodních dopisů přímo v prohlížeči:</label>
+          <input type="password" id="openrouter-key" placeholder="sk-or-…" autocomplete="off">
+        </div>
+
+        <h3 style="margin-top:20px">Životopis (text)</h3>
+        <div class="form-row">
+          <label>Text CV pro generátor průvodních dopisů:</label>
+          <textarea id="cv-text" style="min-height:140px; width:100%; border:1px solid var(--border); border-radius:6px; padding:9px 12px; font-size:12px; font-family:inherit; background:var(--bg); resize:vertical"></textarea>
+        </div>
+
+        <div class="settings-note">
+          ℹ️ Nastavení se ukládá <strong>jen v tomto prohlížeči</strong> (localStorage).
+          Změny klíčových slov a platu se projeví jen ve webovém zobrazení —
+          Python skript používá hodnoty z <code>job-hunter/config.py</code>.
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:16px">
+          <button class="btn btn-primary" id="btn-save-settings">Uložit nastavení</button>
+          <button class="btn btn-secondary" id="btn-reset-settings">Obnovit výchozí</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

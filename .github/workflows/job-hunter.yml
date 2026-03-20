@@ -6,7 +6,7 @@ on:
   workflow_dispatch:        # ruční spuštění kdykoliv
 
 permissions:
-  contents: write           # potřeba pro commit history.json zpět do repo
+  contents: write
 
 jobs:
   hunt:
@@ -32,10 +32,10 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python main.py
 
-      - name: Uložit historii odeslaných nabídek
+      - name: Uložit data zpět do repozitáře
         run: |
           git config user.name "Job Hunter Bot"
           git config user.email "action@github.com"
-          git add job-hunter/history.json
-          git diff --staged --quiet || git commit -m "Aktualizace historie nabídek $(date +'%Y-%m-%d') [skip ci]"
+          git add job-hunter/history.json docs/job-hunter/data/
+          git diff --staged --quiet || git commit -m "Aktualizace nabídek $(date +'%Y-%m-%d') [skip ci]"
           git push

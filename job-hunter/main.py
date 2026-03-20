@@ -5,6 +5,7 @@ Vyžaduje env proměnné: OPENROUTER_API_KEY, GMAIL_ADDRESS, GMAIL_APP_PASSWORD
 """
 import json
 import sys
+from datetime import date, datetime
 from pathlib import Path
 
 from scrapers.jobscz import JobsCzScraper
@@ -17,8 +18,13 @@ from scrapers.atmoskop import AtmoskopScraper
 from filter import JobFilter
 from ai_scorer import AIScorer
 from email_sender import EmailSender
+import config as cfg
 
-HISTORY_FILE = Path(__file__).parent / "history.json"
+ROOT = Path(__file__).parent
+HISTORY_FILE = ROOT / "history.json"
+WEB_DATA_DIR = ROOT.parent / "docs" / "job-hunter" / "data"
+OFFERS_FILE = WEB_DATA_DIR / "offers.json"
+CONFIG_JSON = WEB_DATA_DIR / "config.json"
 
 
 def load_history() -> set[str]:
@@ -31,6 +37,66 @@ def load_history() -> set[str]:
 def save_history(history: set[str]) -> None:
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(sorted(history), f, ensure_ascii=False, indent=2)
+
+
+def save_web_data(new_offers: list) -> None:
+    """Uloží nabídky do docs/job-hunter/data/offers.json pro webové rozhraní."""
+    WEB_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Načti existující nabídky
+    existing = []
+    if OFFERS_FILE.exists():
+        with open(OFFERS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            existing = data.get("offers", [])
+
+    # Existující IDs pro deduplikaci
+    existing_ids = {o["id"] for o in existing}
+
+    # Přidej nové nabídky na začátek
+    today = date.today().isoformat()
+    new_records = []
+    for o in new_offers:
+        if o.id not in existing_ids:
+            new_records.append({
+                "id": o.id,
+                "title": o.title,
+                "company": o.company,
+                "url": o.url,
+                "source": o.source,
+                "salary_text": o.salary_text,
+                "salary_min": o.salary_min,
+                "ai_score": o.ai_score,
+                "ai_comment": o.ai_comment,
+                "description": o.description[:500],
+                "location": o.location,
+                "date_found": today,
+            })
+
+    all_offers = new_records + existing
+
+    with open(OFFERS_FILE, "w", encoding="utf-8") as f:
+        json.dump({
+            "updated": datetime.now().isoformat(timespec="seconds"),
+            "total": len(all_offers),
+            "offers": all_offers,
+        }, f, ensure_ascii=False, indent=2)
+
+    # Ulož config.json pro webové rozhraní
+    with open(CONFIG_JSON, "w", encoding="utf-8") as f:
+        json.dump({
+            "want_keywords": cfg.WANT_KEYWORDS,
+            "dont_want_keywords": cfg.DONT_WANT_KEYWORDS,
+            "min_salary": cfg.MIN_SALARY,
+            "portals": [s.name for s in [
+                JobsCzScraper(), PraceCzScraper(), StartupJobsScraper(),
+                JobstackScraper(), AtmoskopScraper(), LinkedInScraper(),
+            ]],
+            "cv_text": cfg.CV_TEXT,
+            "openrouter_model": cfg.OPENROUTER_MODEL,
+        }, f, ensure_ascii=False, indent=2)
+
+    print(f"✓ Web data uložena ({len(new_records)} nových, {len(all_offers)} celkem)")
 
 
 def main() -> None:
@@ -75,6 +141,8 @@ def main() -> None:
 
     if not new_offers:
         print("Žádné nové nabídky. E-mail nebude odeslán.")
+        # I tak ulož config.json pro web
+        save_web_data([])
         return
 
     # --- AI hodnocení ---
@@ -94,8 +162,10 @@ def main() -> None:
             offer.ai_comment = "Nepodařilo se ohodnotit."
             scored.append(offer)
 
-    # Seřadit podle skóre (nejlepší první)
     scored.sort(key=lambda o: o.ai_score, reverse=True)
+
+    # --- Uložení dat pro webové rozhraní ---
+    save_web_data(scored)
 
     # --- Odeslání e-mailu ---
     print("\nOdesílám e-mail…")

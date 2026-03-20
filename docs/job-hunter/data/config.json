@@ -1,0 +1,28 @@
+{
+  "want_keywords": [
+    "strategie", "analytika", "analýza", "b2b", "tech", "saas",
+    "sem", "ppc", "google ads", "brand", "automatizace", "automation",
+    "hubspot", "marketing automation", "growth", "performance",
+    "data", "reporting", "kampaně", "campaigns", "digital marketing",
+    "performance marketing", "brand manager", "marketing manager",
+    "marketing specialist", "marketing analytik", "growth marketing"
+  ],
+  "dont_want_keywords": [
+    "community manager", "community manažer",
+    "influencer", "influencer marketing",
+    "event manager", "eventový marketing", "events manager",
+    "správa sociálních sítí", "social media manager",
+    "tiktok", "instagram manažer", "facebook manažer",
+    "obchodní zástupce", "obchodní zástupkyně",
+    "obchodní manažer", "obchodní manažerka",
+    "sales manager", "sales representative", "sales rep",
+    "account manager", "key account",
+    "obchodní ředitel", "obchodní ředitelka",
+    "prodejce", "prodejkyně",
+    "business developer", "business development manager"
+  ],
+  "min_salary": 45000,
+  "portals": ["Jobs.cz", "Prace.cz", "StartupJobs.cz", "Profesia.cz", "Atmoskop.cz", "LinkedIn"],
+  "cv_text": "Andrea Klímová — Marketing Specialist\n\nAktuální pozice: Marketing Specialist — ELOS Technologies s.r.o. (10/2022 – nyní, Praha)\n- Správa firemního webu (struktura, články, případové studie, reference)\n- Copywriting: blogy, odborné články, newslettery\n- Grafika: Canva, Figma, Adobe\n- Analytika: reporting, návštěvnost, dosah, výkon kampaní (Google Analytics 4)\n- Spolupráce s vývojáři a designéry při rozvoji webu\n- HubSpot, základní SEO a PPC, plánování kampaní",
+  "openrouter_model": "openai/gpt-4o-mini"
+}
