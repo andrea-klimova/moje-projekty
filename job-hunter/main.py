@@ -13,6 +13,7 @@ from scrapers.startupjobs import StartupJobsScraper
 from scrapers.jobstack import JobstackScraper
 from scrapers.linkedin import LinkedInScraper
 from scrapers.agencies import AgenciesScraper
+from scrapers.atmoskop import AtmoskopScraper
 from filter import JobFilter
 from ai_scorer import AIScorer
 from email_sender import EmailSender
@@ -46,6 +47,7 @@ def main() -> None:
         PraceCzScraper(),
         StartupJobsScraper(),
         JobstackScraper(),
+        AtmoskopScraper(),
         LinkedInScraper(),
         AgenciesScraper(),
     ]
