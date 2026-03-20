@@ -102,7 +102,7 @@ def fetch_articles(days_back: int = DAYS_BACK) -> dict:
 def summarize_with_gemini(articles_by_category: dict) -> str:
     """Pošle články do Gemini a vrátí česká shrnutí + náměty."""
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
 
     articles_text = ""
     for category, articles in articles_by_category.items():
