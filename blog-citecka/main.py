@@ -171,7 +171,9 @@ Piš srozumitelně a prakticky. Vyhni se obecnostem.
         },
         timeout=60,
     )
-    response.raise_for_status()
+    if not response.ok:
+        print(f"  ❌ OpenRouter chyba {response.status_code}: {response.text}")
+        response.raise_for_status()
 
     time.sleep(2)  # pauza po požadavku — ochrana před překročením API limitu
 
