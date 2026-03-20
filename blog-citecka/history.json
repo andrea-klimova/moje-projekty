@@ -10,5 +10,17 @@
       "💰 FinOps & Cloud Cost": 2,
       "🔒 Security & DevSecOps": 4
     }
+  },
+  {
+    "week": "20. 03. 2026",
+    "generated": "2026-03-20T13:52:45.640197+00:00",
+    "articles": 119,
+    "categories": {
+      "🔧 DevOps & CI/CD": 39,
+      "☁️ Cloud & Kubernetes": 41,
+      "🐧 Linux & Open Source": 33,
+      "💰 FinOps & Cloud Cost": 2,
+      "🔒 Security & DevSecOps": 4
+    }
   }
 ]
