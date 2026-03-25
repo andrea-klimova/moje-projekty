@@ -1,8 +1,9 @@
 name: Job Hunter
 
 on:
-  schedule:
-    - cron: "0 7 * * *"   # každý den v 7:00 UTC (9:00 Praha)
+  # POZASTAVENO — odkomentuj schedule pro obnovení
+  # schedule:
+  #   - cron: "0 7 * * *"   # každý den v 7:00 UTC (9:00 Praha)
   workflow_dispatch:        # ruční spuštění kdykoliv
 
 permissions:
