@@ -90,5 +90,17 @@
       "🐧 Linux & Open Source": 33,
       "🔒 Security & DevSecOps": 2
     }
+  },
+  {
+    "week": "4. 05. 2026",
+    "generated": "2026-05-04T09:16:21.115428+00:00",
+    "articles": 130,
+    "categories": {
+      "🔧 DevOps & CI/CD": 41,
+      "☁️ Cloud & Kubernetes": 42,
+      "🐧 Linux & Open Source": 41,
+      "💰 FinOps & Cloud Cost": 1,
+      "🔒 Security & DevSecOps": 5
+    }
   }
 ]
