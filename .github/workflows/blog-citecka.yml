@@ -1,8 +1,9 @@
 name: Týdenní přehled blogů
 
 on:
-  schedule:
-    - cron: '0 7 * * 1'   # každé pondělí v 7:00 UTC (= 8:00 nebo 9:00 v ČR)
+  # POZASTAVENO — odkomentuj schedule pro obnovení
+  # schedule:
+  #   - cron: '0 7 * * 1'   # každé pondělí v 7:00 UTC (= 8:00 nebo 9:00 v ČR)
   workflow_dispatch:        # možnost spustit ručně přes GitHub UI
 
 jobs:
